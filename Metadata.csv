@@ -1,0 +1,109 @@
+Headers,Question.ID,Question,respons levels
+Respondent ID,NaN,NaN,NaN
+Collector ID,NaN,NaN,NaN
+Start Date,NaN,NaN,NaN
+End Date,NaN,NaN,NaN
+Please indicate your level of awareness with,Q1.1,Please indicate your level of awareness with,In silico medicine - Not at all aware
+X,Q1.1,Please indicate your level of awareness with,In silico medicine - Slightly aware
+X.1,Q1.1,Please indicate your level of awareness with,In silico medicine - Moderately aware
+X.2,Q1.1,Please indicate your level of awareness with,In silico medicine - Very aware
+X.3,Q1.1,Please indicate your level of awareness with,In silico medicine - Extremely aware
+X.4,Q1.2,Please indicate your level of awareness with,Patient-specific modelling - Not at all aware
+X.5,Q1.2,Please indicate your level of awareness with,Patient-specific modelling - Slightly aware
+X.6,Q1.2,Please indicate your level of awareness with,Patient-specific modelling - Moderately aware
+X.7,Q1.2,Please indicate your level of awareness with,Patient-specific modelling - Very aware
+X.8,Q1.2,Please indicate your level of awareness with,Patient-specific modelling - Extremely aware
+X.9,Q1.3,Please indicate your level of awareness with,In silico clinical trials - Not at all aware
+X.10,Q1.3,Please indicate your level of awareness with,In silico clinical trials - Slightly aware
+X.11,Q1.3,Please indicate your level of awareness with,In silico clinical trials - Moderately aware
+X.12,Q1.3,Please indicate your level of awareness with,In silico clinical trials - Very aware
+X.13,Q1.3,Please indicate your level of awareness with,In silico clinical trials - Extremely aware
+X.14,Q1.4,Please indicate your level of awareness with,Virtual Physiological Human - Not at all aware
+X.15,Q1.4,Please indicate your level of awareness with,Virtual Physiological Human - Slightly aware
+X.16,Q1.4,Please indicate your level of awareness with,Virtual Physiological Human - Moderately aware
+X.17,Q1.4,Please indicate your level of awareness with,Virtual Physiological Human - Very aware
+X.18,Q1.4,Please indicate your level of awareness with,Virtual Physiological Human - Extremely aware
+X.19,Q1.5,Please indicate your level of awareness with,Personalized medicine - Not at all aware
+X.20,Q1.5,Please indicate your level of awareness with,Personalized medicine - Slightly aware
+X.21,Q1.5,Please indicate your level of awareness with,Personalized medicine - Moderately aware
+X.22,Q1.5,Please indicate your level of awareness with,Personalized medicine - Very aware
+X.23,Q1.5,Please indicate your level of awareness with,Personalized medicine - Extremely aware
+X.24,Q1.6,Please indicate your level of awareness with,Digital Twin - Not at all aware
+X.25,Q1.6,Please indicate your level of awareness with,Digital Twin - Slightly aware
+X.26,Q1.6,Please indicate your level of awareness with,Digital Twin - Moderately aware
+X.27,Q1.6,Please indicate your level of awareness with,Digital Twin - Very aware
+X.28,Q1.6,Please indicate your level of awareness with,Digital Twin - Extremely aware
+Please specify the technical backgrounds included in your team (please select all that apply),Q2.1,Please specify the technical backgrounds included in your team (please select all that apply),Biomedical Engineering
+X.29,Q2.2,Please specify the technical backgrounds included in your team (please select all that apply),Computer Science
+X.30,Q2.3,Please specify the technical backgrounds included in your team (please select all that apply),Data Science
+X.31,Q2.4,Please specify the technical backgrounds included in your team (please select all that apply),Statistics
+X.32,Q2.5,Please specify the technical backgrounds included in your team (please select all that apply),Mathematics
+X.33,Q2.6,Please specify the technical backgrounds included in your team (please select all that apply),Other (please specify)
+Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Q3.1,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Finite Element Analysis
+X.34,Q3.2,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Lumped-parameter models
+X.35,Q3.3,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Computational Fluid Dynamics
+X.36,Q3.4,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Fluid-structure interaction
+X.37,Q3.5,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Multi-scale (1D-3D)
+X.38,Q3.6,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,"Extended (e.g. Augmented, Virtual, Mixed) reality"
+X.39,Q3.7,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Artificial Intelligence/Machine Learning
+X.40,Q3.8,Please indicate your level of familiarity with the following computer modelling and simulation methodologies:,Statistical shape modelling
+Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Q4.1,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Finite Element Analysis
+X.41,Q4.2,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Lumped-parameter models
+X.42,Q4.3,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Computational Fluid Dynamics
+X.43,Q4.4,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Fluid-structure Interaction
+X.44,Q4.5,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Multi-scale (1D-3D) modelling
+X.45,Q4.6,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,"Extended (e.g. Augmented, Virtual, Mixed) reality"
+X.46,Q4.7,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Artificial Interlligence/Machine Learning
+X.47,Q4.8,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Statistical Shape Modelling
+X.48,Q4.9,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,None
+X.49,Q4.10,Please select all computer modelling and simulation methodologies that you have actually applied to your practice,Other (please specify)
+Do you have team members dedicated to computer modelling and simulations?,Q5,Do you have team members dedicated to computer modelling and simulations?,NaN
+"If any, are your team members dedicated to computer modelling and simulation based within the clinical premises?",Q6,"If any, are your team members dedicated to computer modelling and simulation based within the clinical premises?",NaN
+Do you see a role for expertise on computer modelling and simulation in your team in the next 5 years?,Q7,Do you see a role for expertise on computer modelling and simulation in your team in the next 5 years?,NaN
+Do you agree with the following sentences?,Q8.1,Do you agree with the following sentences?,Computer modelling and simulation provides me with more confidence in planning procedures
+X.50,Q8.2,Do you agree with the following sentences?,Patient-specific computer modelling and simulation is accurate enough for clinical application
+X.51,Q8.3,Do you agree with the following sentences?,Patient-specific computer modelling and simulation is slow
+X.52,Q8.4,Do you agree with the following sentences?,I have access to high performance computing
+X.53,Q8.5,Do you agree with the following sentences?,There is no need for expertise on computer modelling and simulation in my team
+X.54,Q8.6,Do you agree with the following sentences?,Results of computer modelling and simulation are easy to understand
+X.55,Q8.7,Do you agree with the following sentences?,It would be impossible to finance a position for an expert in computer modelling and simulation in my institute
+X.56,Q8.8,Do you agree with the following sentences?,Computer modelling and simulation allows me to perform procedure faster
+I have used computer modelling and simulation to (please select all that apply):,Q9.1,I have used computer modelling and simulation to (please select all that apply):,Enrich diagnosis
+X.57,Q9.2,I have used computer modelling and simulation to (please select all that apply):,Plan interventions
+X.58,Q9.3,I have used computer modelling and simulation to (please select all that apply):,Compare different therapeutic outcomes (retrospectively)
+X.59,Q9.4,I have used computer modelling and simulation to (please select all that apply):,Teach
+X.60,Q9.5,I have used computer modelling and simulation to (please select all that apply):,Study Pathophysiology
+X.61,Q9.6,I have used computer modelling and simulation to (please select all that apply):,Inform the patient on disease progress
+X.62,Q9.7,I have used computer modelling and simulation to (please select all that apply):,Predict/compare therapeutic outcomes
+X.63,Q9.8,I have used computer modelling and simulation to (please select all that apply):,None of the above
+X.64,Q9.9,I have used computer modelling and simulation to (please select all that apply):,Other (please specify)
+Have you used computer modelling and simulations for planning procedures?,Q10,Have you used computer modelling and simulations for planning procedures?,NaN
+"If you have used computer modelling & simulation to plan interventions, please specify the medical field",Q11.1,"If you have used computer modelling & simulation to plan interventions, please specify the medical field",Cardiovascular
+X.65,Q11.2,"If you have used computer modelling & simulation to plan interventions, please specify the medical field",Musko-skeletal
+X.66,Q11.3,"If you have used computer modelling & simulation to plan interventions, please specify the medical field",Cancer
+X.67,Q11.4,"If you have used computer modelling & simulation to plan interventions, please specify the medical field",Neuro-degenerative
+X.68,Q11.5,"If you have used computer modelling & simulation to plan interventions, please specify the medical field",N/A
+X.69,Q11.6,"If you have used computer modelling & simulation to plan interventions, please specify the medical field",Other (please specify)
+"If any, please name the procedures you used them for:",Q12,"If any, please name the procedures you used them for:","If any, please name the procedures you used them for:"
+How often have you used them over the last year?,Q13,How often have you used them over the last year?,How often have you used them over the last year?
+"On a scale from 1 to 10, how much do you trust the computer modelling and simulation you use?",Q14,"On a scale from 1 to 10, how much do you trust the computer modelling and simulation you use?","On a scale from 1 to 10, how much do you trust the computer modelling and simulation you use?"
+Which  kind of evidence would you require to trust the outcome of computer modelling & simulation (Please select all that apply)?,Q15.1,Which  kind of evidence would you require to trust the outcome of computer modelling & simulation (Please select all that apply)?,Successful post-hoc in silico clinical trials
+X.69,Q15.2,Which  kind of evidence would you require to trust the outcome of computer modelling & simulation (Please select all that apply)?,Successful a priori in silico clinical trials
+X.70,Q15.3,Which  kind of evidence would you require to trust the outcome of computer modelling & simulation (Please select all that apply)?,Personal positive experience
+X.71,Q15.4,Which  kind of evidence would you require to trust the outcome of computer modelling & simulation (Please select all that apply)?,Regulatory approval
+X.72,Q15.5,Which  kind of evidence would you require to trust the outcome of computer modelling & simulation (Please select all that apply)?,Other (please specify)
+Which is your medical specialty?,Q16,Which is your medical specialty?,NaN
+In what country do you currently work?,Q17,In what country do you currently work?,NaN
+What is your current position?,Q18,What is your current position?,NaN
+What is your age group?,Q19,What is your age group?,NaN
+"Approximately, how many journal articles have you published?",Q20,"Approximately, how many journal articles have you published?",NaN
+How many grants have you been awarded that include computer modelling and simulation?,Q21,How many grants have you been awarded that include computer modelling and simulation?,NaN
+"If any, please provide an estimate of the total amount of funding awarded from grants including (but possibly not only) computer modelling and simulation?",Q22,"If any, please provide an estimate of the total amount of funding awarded from grants including (but possibly not only) computer modelling and simulation?",NaN
+"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",Q23.1,"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",Europe
+X.73,Q23.2,"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",North America
+X.74,Q23.3,"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",South America
+X.75,Q23.4,"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",Africa
+X.76,Q23.5,"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",Asia
+X.77,Q23.6,"Do you have on-going collaborations within in the field of computer modelling and simulation (e.g. joint grants, research projects leading to joint publications etc) in the following parts of the world (please select all that apply)?",Oceania
+Have you ever been involved in conducting a clinical trial of a healthcare technology?,Q24,Have you ever been involved in conducting a clinical trial of a healthcare technology?,NaN
+Have you ever been involved in CE marking/FDA/EMA submission for a healthcare technology?,Q25,Have you ever been involved in CE marking/FDA/EMA submission for a healthcare technology?,NaN

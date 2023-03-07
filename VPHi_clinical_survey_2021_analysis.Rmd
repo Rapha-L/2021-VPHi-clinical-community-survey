@@ -1,0 +1,662 @@
+---
+title: "Analysis of 2021 VPHi clinical Survey data"
+output: html_notebook
+author: Raphaëlle Lesage
+---
+
+%Copyright (c) 2023 - Virtual Physiological Human institute (VPHi)
+
+%Distributed under the GPLv3 License.
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+%     You should have received a copy of the GNU General Public License
+%     along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+
+
+# Setup environment
+## Load librabries
+```{r}
+##set up chunk
+# path management packages
+
+# wrangling packages
+library (here)
+library(tidyverse) # for tidyr and dplyr
+#library(data.table) #alternative to dplyr to work with table as sql
+
+# analysis packages
+library(coin) #for ordinal data analysis (Agresti, 2007)
+library('DescTools')
+
+# plotting packages
+library(ggplot2) # ggplot environment
+library(ggpubr) # publication ready plots
+library(viridis) #color palet (yellow to blue)
+library(corrplot)
+library("gplots") #for balloonplot
+
+
+```
+
+## Define path for storing results (here)
+```{r}
+outfile_name <- "Preprocessed_data.Rds"
+here::i_am("2021_VPHi_clinical_survey_data.csv")
+here = here::here()
+output_folder = "Output"
+```
+
+## Load pre-processed data
+```{r}
+
+save_file_path <- here(output_folder, outfile_name)
+tdf <- readRDS(save_file_path)
+rawdata <- readRDS(here(here,output_folder,"Raw_data.Rds"))
+
+
+```
+
+# Analysis
+
+
+Define Likert scales' levels
+```{r}
+Awareness_levels= c('Not at all aware','Slightly aware','Moderately aware','Very aware','Extremely aware')
+#Familiarity_levels= c('','Not at all familiar','Slightly familiar','Moderately familiar','Very familiar','Extremely familiar')
+#Agreement_levels= c('','Strongly disagree','Disagree','Neutral','Agree','Strongly agree')
+
+```
+
+Get an overview of the data content and structure:
+```{r}
+#glimpse(tdf)
+```
+
+
+## Awareness and familiarity
+
+Level of awareness in in silico concepts and terms: 
+```{r}
+summary(tdf[,5:10])
+
+# print("Patient.specific.modelling.awareness :")
+# table(tdf$Q1.Patient.specific.modelling.awareness)
+# p1= prop.table(table(tdf$Q1.Patient.specific.modelling.awareness))*100
+
+```
+Visualize data:
+```{r}
+p1= prop.table(table(tdf$Q1.Patient.specific.modelling.awareness))*100
+p2= prop.table(table(tdf$Q1.In.silico.clinical.trials.awareness))*100
+p3= prop.table(table(tdf$Q1.Virtual.Physiological.Human.awareness))*100
+p4= prop.table(table(tdf$Q1.Personalized.medicine.awareness))*100
+p5= prop.table(table(tdf$Q1.Digital.Twin.awareness))*100
+
+
+## plot histograms
+par(mfrow=c(3,2))
+  b1 = barplot(p1, main = "Patient specific modelling")
+  text(x = b1, y = p1, label = round(p1,1), pos = 1, cex = 1, col = "red")
+  
+  b2 = barplot(p2, main = "In silico clinical trials")
+  text(x = b2, y = p2, label = round(p2,1), pos = 1, cex = 1, col = "red")
+  
+  b3 = barplot(p3, main = "Virtual Physiological Human")
+  text(x = b3, y = p3, label = round(p3,1), pos = 1, cex = 1, col = "red")
+  
+  b4 = barplot(p4, main = "Personalized medicine")
+  text(x = b4, y = p4, label = round(p4,1), pos = 1, cex = 1, col = "red")
+  
+  b5 = barplot(p5, main = "Digital Twin")
+  text(x = b5, y = p5, label = round(p5,1), pos = 1, cex = 1, col = "red")
+```
+
+
+Total number of answers (not NA) per question:
+```{r}
+
+cat("In.silico.medicine.awareness:", sum(table(tdf$Q1.In.silico.medicine.awareness)),"\n")
+cat("Patient.specific.modelling.awareness:", sum(table(tdf$Q1.Patient.specific.modelling.awareness)),"\n")
+cat("In.silico.clinical.trials.awareness:", sum(table(tdf$Q1.In.silico.clinical.trials.awareness)),"\n")
+cat("Virtual.Physiological.Human.awareness: ", sum(table(tdf$Q1.Virtual.Physiological.Human.awareness)),"\n")
+cat("Personalized.medicine.awareness:", sum(table(tdf$Q1.Personalized.medicine.awareness)),"\n")
+cat("Digital.Twin.awareness:", sum(table(tdf$Q1.Digital.Twin.awareness)),"\n")
+
+```
+
+
+
+## level of familiarity with in silico methods
+
+```{r}
+summary(tdf[,17:24])
+```
+
+Total number of answers (not NA) per question:
+```{r}
+for (i in c(17:24)){
+  cat(colnames(tdf[,i]),": ", sum(table(tdf[,i])), "\n")
+}
+
+```
+## Technical background
+
+Q2  is about CM&S related backgrounds represented in respondents' teams.
+Data selection:
+```{r}
+tdf_Q2= select(tdf, starts_with("Q2."))
+
+Q2_TRUE = lapply(tdf_Q2, as.logical) %>% lapply(which) %>% lapply(length) %>% as.data.frame() 
+rownames(Q2_TRUE) =c("number_votes")
+
+```
+
+Visualize the responses for the 'Other' option of Q2 & correct data
+```{r}
+rawdata$Q2.Other[rawdata$Q2.Other != ""]
+
+# 13 replies were identified as invalid (non CM&S related background)
+Q2_TRUE$Q2.Other = Q2_TRUE$Q2.Other - 13
+```
+
+Number of votes by category
+```{r}
+as.data.frame(t(Q2_TRUE)) %>% arrange(desc(number_votes))
+```
+
+
+Visualize data with pie chart
+```{r}
+Q2 = cbind(summary(tdf$Q2.Biomedical.Engineering), summary(tdf$Q2.Computer.Science), summary(tdf$Q2.Data.Science), summary(tdf$Q2.Statistics), summary(tdf$Q2.Mathematics), summary(tdf$Q2.Other))
+colnames(Q2)=colnames(tdf[,c(11:16)])
+
+#Arrange Q2: the "Other" answers (free entry)  were manually grouped into CM&S related background and non-related background.
+# The counts corresponding to non CM&S related entries are changed as 'FALSE' answers because we want to evaluate the total amount of CM&S related backgrounds only.
+
+nonTech = Q2["TRUE","Q2.Other"]-13
+Q2["FALSE","Q2.Other"]=Q2["FALSE","Q2.Other"]+nonTech
+Q2["TRUE","Q2.Other"] = 13
+
+
+pie(as.vector(Q2["TRUE",]), colnames(Q2), main= "Technical background")
+```
+
+How many individual respondents did not answer the question about technical background ?
+```{r}
+length(tdf$Respondent.ID[(tdf$Q2.Biomedical.Engineering ==FALSE)& (tdf$Q2.Computer.Science==FALSE) & (tdf$Q2.Data.Science==FALSE) & ( tdf$Q2.Statistics==FALSE) & (tdf$Q2.Mathematics ==FALSE) & (tdf$Q2.Other==FALSE)])
+```
+Team members dedicated to CM&S:
+```{r}
+tbl = table(tdf$Q5.Team.members.for.CMnS)
+cbind(tbl,round(prop.table(tbl)*100,2))
+```
+## Usage and fequencies
+
+
+Frequency of use fro planning intervention:
+```{r}
+barplot(prop.table(summary(tdf$Q13.how.often, na.omit=TRUE))*100, xlab= "Frequency of procedure planned with CM&S", ylab = "Percentage of votes")
+```
+
+
+
+What medical applications has CM&S been used for? :
+
+```{r}
+
+tdf_Q9= select(tdf, starts_with("Q9."))
+
+Q9_TRUE = lapply(tdf_Q9, as.logical) %>% lapply(which) %>% lapply(length) %>% as.data.frame() 
+rownames(Q9_TRUE) =c("number_votes")
+
+as.data.frame(t(Q9_TRUE)) %>% arrange(desc(number_votes))
+
+
+```
+
+CM&S method applied to clinical practice
+
+```{r}
+
+tdf_Q4= select(tdf, starts_with("Q4."))
+
+Q4_TRUE = lapply(tdf_Q4, as.logical) %>% lapply(which) %>% lapply(length) %>% as.data.frame() 
+rownames(Q4_TRUE) =c("number_votes")
+
+as.data.frame(t(Q4_TRUE)) %>% arrange(desc(number_votes))
+```
+
+## Association between medical specialty (Q11) and methods used by clinicians (Q4)
+
+
+```{r}
+medical_fields = as.list(colnames(tdf)[grep("Q11.",colnames(tdf))])
+cms_methods = as.list(colnames(tdf)[grep("Q4.",colnames(tdf))])
+
+Chi_pvalues=matrix(,nrow=length(medical_fields),ncol= length(cms_methods))
+rownames(Chi_pvalues) =  list("Cardiovascular","Muskoskeletal","Cancer","Neuro degenerative","NA","Other") #medical_fields
+colnames(Chi_pvalues) = list("Finite Element Analysis","Lumped parameter models","Computational Fluid Dynamics","Fluid structure Interaction", "Multiscale 1D/3D modelling","Extended,Virtual reality", "AI, ML","Statistical Shape Modelling","None", "Other method applied") #cms_methods
+
+
+fish_pvalues=Chi_pvalues
+
+
+for (m in 1:length(medical_fields)){
+  for (c in 1:length(cms_methods)){
+    med_field= medical_fields[[m]] # (otherwise use index with grep)
+    cms_method= cms_methods[[c]]
+    #tab = table(tdf[,med_field],tdf[,cms_method])
+    tab = table(select(tdf,all_of(med_field), all_of(cms_method)))
+    tab
+    #print(list(med_field,cms_method))
+    suppressWarnings(chisq <- chisq.test(tab))
+    fish <- fisher.test(tab)
+    # if (chisq$p.value < 0.05){
+    #       corrplot(chisq$residuals, is.cor = FALSE, title=paste(med_field,cms_method), tl.pos=TRUE, method = "number")
+    #   par(mar=c(5, 4, 4, 2) + 0.2)
+    # }
+    Chi_pvalues[m,c] = chisq$p.value
+    fish_pvalues[m,c] = fish$p.value
+  }
+}
+
+
+#Chi-test of association
+corrplot(Chi_pvalues, is.cor = FALSE, method = "color",p.mat= Chi_pvalues, sig.level = c(0.001, 0.01, 0.05), insig = 'label_sig',pch.cex = 0.9)
+
+#Fisher of association
+corrplot(fish_pvalues, is.cor = FALSE, method = "color",p.mat= fish_pvalues, sig.level = c(0.001, 0.01, 0.05), insig = 'label_sig',pch.cex = 1,tl.col="black", cl.cex= 1, tl.cex=1.5, tl.srt=45)
+```
+
+
+
+## level of trust & awareness in technologies
+
+### Check for trust distribution
+
+```{r}
+hist(tdf$Q14.Trust.scale, xlab = "Trust scale", cex.axis=1.5, cex.lab=1.5, main=NA)
+m=round(mean(tdf$Q14.Trust.scale, na.rm= TRUE),2)
+abline(v= m, col="red", lwd= 3)
+text(x=m*1.35, y= 25, paste("Mean =", m),col="red",cex =1.2)
+```
+
+```{r}
+
+cat("mean: ", mean(tdf$Q14.Trust.scale, na.rm= TRUE),"\n")
+cat("standard deviation: ",sd(tdf$Q14.Trust.scale, na.rm = TRUE),"\n")
+cat("number of answers (n): ", length((which(!is.na(tdf$Q14.Trust.scale)))),"\n")
+
+```
+
+
+### Check for trust distribution within level of awareness in in silico medicine (probability distribution per level of awareness):
+
+```{r}
+tab2 = table(select(tdf,Q1.Personalized.medicine.awareness, Q14.Trust.scale))
+#gplots::balloonplot(tab2, main ="Q1.In.silico.medicine.awareness", xlab ="", ylab="", label = FALSE, show.margins = FALSE)
+
+
+table(select(tdf,Q1.In.silico.medicine.awareness, Q14.Trust.scale))
+```
+
+Relation between trust and in silico medicine awareness:
+```{r}
+tab2 = table(select(tdf,Q1.In.silico.medicine.awareness, Q14.Trust.scale))
+
+distrib = list()
+distribution = vector()
+countlength = vector()
+
+# Histograms and density lines
+par(mfrow=c(3, 2))
+colnames <- dimnames(tab2)[[1]]
+for (i in 1:5) {
+  temp = vector()
+  for (j in 1:10){
+    temp= append(temp,rep(j,tab2[i,j]))
+  }
+  
+  hist(temp,xlim = c(0,10), main=colnames[i], probability=TRUE, col="gray", border="white")
+  d <- density(temp)
+  lines(d, col="red")
+  
+  
+  countlength = append(countlength, length(temp))
+  distrib= append(distrib,list(temp))
+  distribution= append(distribution,temp)
+  
+}
+
+
+dat <- data.frame(dens = distribution
+                  , lines = factor( rep( dimnames(tab2)[[1]], countlength ),levels=levels(tdf$Q1.In.silico.medicine.awareness)))
+
+#Plot.
+legend= "In silico medicine awareness"
+ggplot(dat, aes(x = dens, fill = lines)) + geom_density(alpha = 0.5) + theme_classic()  + theme(axis.title = element_text(size=14), axis.text = element_text(size=14), legend.text= element_text(size=14), legend.title = element_text(size=12)) + labs(x="Trust", y="Desnity") + scale_fill_brewer(palette = "Spectral", direction = -1, name= legend)
+
+```
+
+
+### Difference of trust between user groups:
+
+Define Users and non-Users group (based on Q4): create new variable, data$CMnS.Usage
+```{r}
+
+No_answers = (tdf$Q4.Finite.Element.Analysis==FALSE & tdf$Q4.Lumped.parameter.models==FALSE & tdf$Q4.Computational.Fluid.Dynamics==FALSE & tdf$Q4.Fluid.structure.Interaction==FALSE & tdf$Q4.Multi.scale.1D.3D.modelling == FALSE & tdf$Q4.Extended..e.g..Augmented..Virtual..Mixed..reality==FALSE & tdf$Q4.Artificial.Interlligence.Machine.Learning==FALSE & tdf$Q4.Statistical.Shape.Modelling==FALSE & tdf$Q4.Other.method.applied==FALSE & tdf$Q4.None==FALSE)
+
+# # display ID of those observations that do not contain any answers:
+# which(No_answers)
+
+data = filter(tdf, !No_answers)
+
+##
+data = dplyr::mutate(data, CMnS.Usage = "Users")
+data$CMnS.Usage[data$Q4.None==FALSE]="Non-Users"
+data$CMnS.Usage = as.factor(data$CMnS.Usage)
+
+```
+
+### Q14 (trust) and Q4 (usage)
+Is there a difference of trust between those who have even applied CM&S to their practive and those who haven't. 
+```{r}
+
+tab_Q4Q14 = table(dplyr::select(data, CMnS.Usage, Q14.Trust.scale))
+# tab_Q4Q14
+# prop.table(tab_Q4Q14, margin = 1)*100
+# prop.table(tab_Q4Q14, margin = 2)*100
+gplots::balloonplot(t(tab_Q4Q14), main = "",ylab = "Use of CM&S",label = TRUE, show.margins = FALSE, text.size=1.2)
+
+boxplot(data$Q14.Trust.scale~ data$CMnS.Usage, ylab= "Q14.Trust.Scale", xlab= "CM&S usage")
+
+# Violin plot basic
+p <- ggplot(data, aes(x= CMnS.Usage, y= Q14.Trust.scale, color=CMnS.Usage)) + 
+  geom_violin(trim=TRUE, size =1)  + stat_compare_means(method = "wilcox.test",label.y= 10.1, label.x = 1.25, size =5)
+p + geom_boxplot(width=0.1, size =1) + theme_light() + theme(axis.title= element_text(size=20), axis.text = element_text(size = 20), legend.title = element_blank(), legend.text = element_text(size=20)) + labs(x = "Usage of CM&S", y="Trust scale")
+
+
+```
+
+
+
+### Q8 (statement agreement) versus Q4 (users - non users) 
+
+Statements:
+1. Computer modelling and simulation provides me with more confidence in planning procedures
+2. Patient-specific computer modelling and simulation is accurate enough for clinical application
+3. I have access to high performance computing
+4. It would be impossible to finance a position for an expert in computer modelling and simulation in my institute
+5. Computer modelling and simulation allows me to perform procedure faster
+6. Patient-specific computer modelling and simulation is slow
+7. There is no need for expertise on computer modelling and simulation in my team
+8. Results of computer modelling and simulation are easy to understand
+
+
+
+1. Computer modelling and simulation provides me with more confidence in planning procedures")
+
+```{r}
+sum(table(tdf$Q8.Agree.statement.1)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.1 %>% summary() %>% prop.table()*100)
+```
+
+
+2. Patient-specific computer modelling and simulation is accurate enough for clinical application
+
+```{r}
+sum(table(tdf$Q8.Agree.statement.2)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.2 %>% summary() %>% prop.table()*100)
+```
+
+3. I have access to high performance computing
+
+```{r}
+sum(table(tdf$Q8.Agree.statement.3)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.3 %>% summary() %>% prop.table()*100) #percentages of votes
+```
+4. It would be impossible to finance a position for an expert in computer modelling and simulation in my institute
+```{r}
+sum(table(tdf$Q8.Agree.statement.4)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.4 %>% summary() %>% prop.table()*100)  #percentages of votes
+```
+5. Computer modelling and simulation allows me to perform procedure faster
+```{r}
+sum(table(tdf$Q8.Agree.statement.5)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.5 %>% summary() %>% prop.table()*100) #percentages of votes
+```
+6. Patient-specific computer modelling and simulation is slow
+```{r}
+sum(table(tdf$Q8.Agree.statement.6)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.6 %>% summary() %>% prop.table()*100) #percentages of votes
+```
+7. There is no need for expertise on computer modelling and simulation in my team
+```{r}
+sum(table(tdf$Q8.Agree.statement.7)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.7 %>% summary() %>% prop.table()*100) #percentages of votes
+```
+8. Results of computer modelling and simulation are easy to understand
+```{r}
+sum(table(tdf$Q8.Agree.statement.8)) #Total number of responses for the statement
+round(tdf$Q8.Agree.statement.8 %>% summary() %>% prop.table()*100) #percentages of votes
+```
+
+
+
+#### Association between experience using CM&S & agreement with statement 1 (Patient-specific computer modelling and simulation is accurate enough for clinical application):
+
+Visualize association:
+```{r}
+#data is generated 
+tab = table(dplyr::select(data, CMnS.Usage, Q8.Agree.statement.1))
+#gplots::balloonplot(t(tab), main = "",ylab = "Use of CM&S",label = TRUE, show.margins = FALSE, text.size=1.2)
+
+
+ggplot(data=subset(data,!is.na(Q8.Agree.statement.1)), aes(x=CMnS.Usage, y=Q8.Agree.statement.1, color = CMnS.Usage, na.rm= TRUE)) +
+  geom_count() +
+  annotate(geom ="text", label="Cochran-Armitage p-val=0.007", x=1.5,y=5.4 , size =1.5) +
+  theme_light() +
+  labs(x="Usage of CM&S", y="CM&S provides me with more confidence \n in planning procedures") +
+  theme(axis.title = element_text(size=9), axis.text = element_text(size=9),legend.title = element_text(size=9)) +
+  scale_color_manual(values = c("Non-Users" = "darkgrey", "Users" = "darkorange"))
+#+ theme(aspect.ratio = 3/1)
+
+#ggsave("plot_1.png", width = 3.5, height = 2.5)
+
+
+```
+
+Some statistics: Cochran-Armitage test is for cases where one variable is binary and one ordinal: usually, the binary variable is the response variable and the ordinal one is the explanatory variable.
+
+Statistical tests:
+```{r}
+# statement 1: Patient-specific computer modelling and simulation is accurate enough for clinical application
+#Agreement_levels= c('','Strongly disagree','Disagree','Neutral','Agree','Strongly agree')
+
+tab_ca= data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.2) %>% table()
+CochranArmitageTest(t(tab_ca))
+
+coin::lbl_test(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.1) %>% table() %>% t())
+
+```
+
+
+#### Association between experience using CM&S & other statements:
+Visualize association for other statements:
+```{r}
+barplot(table(dplyr::select(data, CMnS.Usage, Q8.Agree.statement.1)), beside = TRUE, legend.text = TRUE, ylab= "number of respondents", xlab = "CM&S provides me with more confidence for planning procedures")
+
+barplot(table(dplyr::select(data, CMnS.Usage, Q8.Agree.statement.2)), beside = TRUE, legend.text = TRUE, ylab= "number of respondents", xlab = "Patient specific modeling is accurate enough for clinical applications")
+text(4,40,labels="Cochran-Armitage p-value = 0.007")
+
+barplot(table(dplyr::select(data, CMnS.Usage, Q8.Agree.statement.3)), beside = TRUE, legend.text = TRUE, ylab= "number of respondents", xlab = "Patient specific modeling is slow")
+
+barplot(table(dplyr::select(data, CMnS.Usage, Q8.Agree.statement.8)), beside = TRUE, legend.text = TRUE, ylab= "number of respondents", xlab = "CM&S allows me to perform procedure faster")
+
+
+barplot(table(dplyr::select(data, CMnS.Usage, Q8.Agree.statement.6)), beside = TRUE, legend.text = TRUE, ylab= "number of respondents", xlab = "Results of computer modelling and simulation are easy to understand")
+
+
+```
+
+
+Statistics for association for other statements:
+```{r}
+
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.1) %>% table() %>% t())
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.3) %>% table() %>% t())
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.4) %>% table() %>% t())
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.5) %>% table() %>% t())
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.6) %>% table() %>% t())
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.7) %>% table() %>% t())
+CochranArmitageTest(data %>% dplyr::select(CMnS.Usage, Q8.Agree.statement.8) %>% table() %>% t())
+
+# # Alternative more elegant code, but less reader friendly output
+# index=grep("Q8\\.",colnames(data))
+# 
+# for (i in index){
+#   data %>% dplyr::select(CMnS.Usage, all_of(i)) %>% table() %>% t() %>% CochranArmitageTest() %>% print()
+# 
+# }
+
+```
+### Role for expertise in the next 5 years
+```{r}
+barplot(prop.table(summary(tdf$Q7.role.for.CMnS.in.clinics, na.omit=TRUE))*100, xlab= "Frequency of procedure planned with CM&S", ylab = "Percentage of votes")
+```
+
+
+### Relation between team members dedicated to CM&S and use of CM&S for planning intervention (Q5 & Q10)
+
+Visualize the contingency table (2 categorical variables):
+```{r}
+
+tab1 = table(tdf$Q5.Team.members.for.CMnS, tdf$Q10.use.for.planning)
+
+xlabel = "Team members for CM&S"
+ylabel= "Have used CM&S for planning interventions"
+
+check_relation <- function(tab,colorscale,xlabel,ylabel){
+  prop.table(tab1)*100 #percentages
+  r= rowSums(tab)
+  c = colSums(tab)
+  s = spineplot(tab,  col=c("darkorange","darkgrey"), xlab=xlabel, ylab=ylabel) #col=viridis (colorscale)
+  return(list(r=r,c=c,plot=s))
+}
+
+
+color_number= 2#3
+l = check_relation(tab1,color_number,xlabel,ylabel)
+
+# l$r
+# l$c
+l$plot
+#prop.table(tab1, margin=1)*100
+
+#Check if variables are independant (Chi-squared test) nominal variables:
+chisq.test(tdf$Q5.Team.members.for.CMnS,tdf$Q10.use.for.planning)
+
+
+```
+### Required evidence to trust CM&S output
+```{r}
+
+tdf_Q15= select(tdf, starts_with("Q15."))
+
+Q15_TRUE = lapply(tdf_Q15, as.logical) %>% lapply(which) %>% lapply(length) %>% as.data.frame() 
+rownames(Q15_TRUE) =c("number_votes")
+
+as.data.frame(t(Q15_TRUE)) %>% arrange(desc(number_votes))
+
+
+filter(rawdata, Q15.Other.evidence != "") %>% select(starts_with("Q15.Other.evidence"))
+
+```
+# Supplementary Figures 
+
+### Level of trust by level or awareness for all in silico terms
+
+```{r}
+
+#insilico_terms= colnames(select(tdf, starts_with("Q1.")))
+insilico_terms_index = grep("Q1\\.",colnames(tdf))
+
+for (c in insilico_terms_index){
+
+  tab2 = table(select(tdf,all_of(c), Q14.Trust.scale))
+  
+  distrib = list()
+  distribution = vector()
+  countlength = vector()
+  
+  # Histograms and density lines
+  par(mfrow=c(3, 2))
+  colnames <- dimnames(tab2)[[1]]
+  for (i in 1:5) {
+    temp = vector()
+    for (j in 1:10){
+      temp= append(temp,rep(j,tab2[i,j]))
+    }
+    
+    hist(temp,xlim = c(0,10), main=colnames[i], probability=TRUE, col="gray", border="white")
+    d <- density(temp)
+    lines(d, col="red")
+    
+    
+    countlength = append(countlength, length(temp))
+    distrib= append(distrib,list(temp))
+    distribution= append(distribution,temp)
+    
+  }
+  
+  
+  dat <- data.frame(dens = distribution
+                    , lines = factor( rep( dimnames(tab2)[[1]], countlength ),levels=Awareness_levels))
+  
+  #Plot.
+  legend= colnames(tdf[,all_of(c)])
+  
+  
+  g = ggplot(dat, aes(x = dens, fill = lines)) + geom_density(alpha = 0.5) + theme_classic()  + theme(axis.title = element_text(size=14), axis.text = element_text(size=14), legend.text= element_text(size=14), legend.title = element_text(size=12)) + labs(x="Trust", y="Desnity") + scale_fill_brewer(palette = "Spectral", direction = -1, name= legend)
+  
+  print(g)
+  #ggsave("Trust_by_awareness1.png", width = 7, height = 5)
+  
+}
+
+
+```
+
+### Association between Role for expertise envisionned & team members dedicated to CM&S
+
+Visualize the contingency table (2 categorical variables):
+```{r}
+
+
+tab1 = table(tdf$Q7.role.for.CMnS.in.clinics, tdf$Q5.Team.members.for.CMnS)
+dimnames(tab1)=list("Role"=rownames(tab1), "Team.members"= colnames(tab1))
+
+
+color_number= 2#3
+l = check_relation(tab1,color_number,"See a role for CM&S in clinics in next 5 years","Have team members dedicated to CM&S")
+
+# l$r
+# l$c
+l$plot
+
+#gplots::balloonplot(t(tab1), main ="Contingency table", xlab ="", ylab="", label = FALSE, show.margins = FALSE)
+
+
+# statistical test:  Cochran and Armitage test for the particular case when y is a binary factor and x is ordered
+coin::chisq_test(tab1, scores=list("Role"=c(-2,-1,0,1,2)))
+
+  
+  
+
+```
+
+

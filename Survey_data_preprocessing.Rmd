@@ -1,0 +1,270 @@
+---
+title: "VPHi clinical Survey 2021 - Preprocessing script"
+output: html_notebook
+author: Raphaëlle Lesage
+---
+
+%Copyright (c) 2023 - Virtual Physiological Human institute (VPHi)
+
+%Distributed under the GPLv3 License.
+%     This program is free software: you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation, either version 3 of the License, or
+%     (at your option) any later version.
+%     You should have received a copy of the GNU General Public License
+%     along with this program.  If not, see <https://www.gnu.org/licenses/>
+
+
+
+# Setup environment
+```{r}
+##set up chunk
+# path management packages
+
+# wrangling packages
+library (here)
+library(tidyverse) # for tidyr and dplyr
+#library(data.table) #alternative to dplyr to work with table as sql
+```
+
+## Define path for storing results (here)
+```{r}
+here::i_am("2021_VPHi_clinical_survey_data.csv")
+here = here::here()
+output_folder = "Output"
+
+if (!file.exists(here(here,output_folder))){
+    dir.create(here(here,output_folder))
+    print("Warning: folder was created")
+} else {
+    print("Warning: folder already exists")
+    
+}
+
+```
+
+# Pre-processing
+
+## Load and clean data object
+```{r}
+
+f= here(here, "2021_VPHi_clinical_survey_data.csv")
+rawdata = read.csv(f,header = TRUE)
+
+medata_file = here(here, "Metadata.csv")
+metadata = read.csv(medata_file,header = TRUE)
+
+
+```
+
+Clean Question 1: level of awareness
+
+```{r}
+questions = colnames(rawdata)
+df= rawdata
+categories = list("In.silico.medicine","Patient.specific.modelling","In.silico.clinical.trials","Virtual.Physiological.Human","Personalized.medicine","Digital.Twin")
+
+
+for (c in 1:length(categories)){
+  
+  
+  q_index = grep(categories[[c]],questions)
+  temp = df[,q_index]!= ""
+  Question = paste("Q1",categories[[c]],"awareness", sep=".")
+  
+  df[,Question] = as.character (df[,q_index[1]])
+  
+  for (i in 1:length(q_index)){
+    q = q_index[i]
+    rows = which(temp[,i])
+    df[rows,Question] = as.character(df[rows,q])
+  }
+  
+  df[,Question] = as.factor(df[,Question]) 
+  
+}
+
+tdf = dplyr::tbl_df(df) # Convert to tibble  
+tdf = tdf[,c(1:4,109:114,35:108)] #move Q1 back at the beginning and only keep aggregated version
+
+# warning:Warning: `tbl_df()` was deprecated in dplyr 1.0.0. Please use `tibble::as_tibble()` instead.
+
+
+```
+
+
+Clean question 2: Technical background
+```{r}
+
+Biomed = tdf$Q2.Biomedical.Engineering != ""
+tdf$Q2.Biomedical.Engineering = as.factor(Biomed)
+
+tdf$Q2.Computer.Science = as.factor( tdf$Q2.Computer.Science != "")
+
+tdf$Q2.Data.Science = as.factor(tdf$Q2.Data.Science != "")
+
+tdf$Q2.Statistics = as.factor(tdf$Q2.Statistics != "")
+
+tdf$Q2.Mathematics = as.factor(tdf$Q2.Mathematics != "")
+
+tdf$Q2.Other = as.factor(tdf$Q2.Other != "")
+
+#rename column for the case 'Other (please specify)';
+
+colnames(tdf[16])="Q2.Other.technical.background"  #tdf %>%dplyr::rename(Other.technical.background = Other..please.specify.)
+
+```
+
+Clean question 4: method applied to practice
+```{r}
+tdf$Q4.Finite.Element.Analysis = as.factor( tdf$Q4.Finite.Element.Analysis != "")
+
+tdf$Q4.Lumped.parameter.models = as.factor( tdf$Q4.Lumped.parameter.models!= "")
+
+tdf$Q4.Computational.Fluid.Dynamics = as.factor( tdf$Q4.Computational.Fluid.Dynamics != "")
+
+tdf$Q4.Fluid.structure.Interaction= as.factor( tdf$Q4.Fluid.structure.Interaction != "")
+
+tdf$Q4.Multi.scale.1D.3D.modelling = as.factor( tdf$Q4.Multi.scale.1D.3D.modelling!= "")
+
+tdf$Q4.Extended..e.g..Augmented..Virtual..Mixed..reality = as.factor( tdf$Q4.Extended..e.g..Augmented..Virtual..Mixed..reality != "")
+
+tdf$Q4.Artificial.Interlligence.Machine.Learning = as.factor( tdf$Q4.Artificial.Interlligence.Machine.Learning != "")
+
+tdf$Q4.Statistical.Shape.Modelling = as.factor( tdf$Q4.Statistical.Shape.Modelling != "")
+
+tdf$Q4.None = as.factor( tdf$Q4.None != "")
+
+tdf$Q4.Other.method.applied = as.factor( tdf$Q4.Other.method.applied != "")
+
+```
+
+
+Clean question 9: types of usage of CM&S
+```{r}
+tdf$Q9.Enrich.diagnosis= as.factor( tdf$Q9.Enrich.diagnosis != "")
+
+tdf$Q9.Plan.interventions = as.factor( tdf$Q9.Plan.interventions!= "")
+
+tdf$Q9.Compare.different.therapeutic.outcomes..retrospectively. = as.factor( tdf$Q9.Compare.different.therapeutic.outcomes..retrospectively. != "")
+
+tdf$Q9.Teach= as.factor( tdf$Q9.Teach != "")
+
+tdf$Q9.Study.Pathophysiology = as.factor( tdf$Q9.Study.Pathophysiology!= "")
+
+tdf$Q9.Inform.the.patient.on.disease.progress = as.factor( tdf$Q9.Inform.the.patient.on.disease.progress != "")
+
+tdf$Q9.Predict.compare.therapeutic.outcomes = as.factor( tdf$Q9.Predict.compare.therapeutic.outcomes != "")
+
+tdf$Q9.None.of.the.above = as.factor( tdf$Q9.None.of.the.above != "")
+
+tdf$Q9.Other.usage = as.factor( tdf$Q9.Other.usage != "")
+
+```
+
+Clean Q10 CM&S used for planning procedures (implement NA values for later stat analyses)
+```{r}
+tdf$Q10.use.for.planning[tdf$Q10.use.for.planning==""] = NA
+
+```
+
+Clean Q5 CM&S used for planning procedures
+```{r}
+tdf$Q5.Team.members.for.CMnS[tdf$Q5.Team.members.for.CMnS==""] = NA
+
+```
+
+
+Clean Q11: medical field of application
+```{r}
+q11 = grep("Q11",colnames(tdf))
+
+temp = select(tdf, starts_with("Q11"))
+temp2= dplyr::tbl_df(temp != "")
+
+tdf[,q11] = temp2
+
+```
+
+Clean Q14: Trust scale (there should not be score= 0, but I found 3 of them.. replace by NA)
+```{r}
+which(tdf$Q14.Trust.scale==0)
+tdf$Q14.Trust.scale[which(tdf$Q14.Trust.scale==0)]=NA
+```
+
+
+Clean Q15: Type of evidence for trusting CM&S
+```{r}
+q15 = grep("Q15",colnames(tdf))
+
+temp = select(tdf, starts_with("Q15"))
+temp2= dplyr::tbl_df(temp != "")
+
+tdf[,q15] = temp2
+
+```
+
+Check class of variables
+```{r}
+sapply(tdf, class)
+```
+
+
+Convert categorical variables to ordinal: Q1, Q3, Q7, Q8, Q13 (Q14?--> continuous), Q19, (Q21: grant), 
+
+```{r}
+
+make_ordinal <- function(x,ordered_levels,exclude){
+  if (exclude == TRUE){
+    factor(x,order = TRUE, levels= ordered_levels, exclude = "")
+  }  
+  
+  else {
+    factor(x,order = TRUE, levels= ordered_levels)
+  }
+}
+
+# Q1
+  Awareness_levels= c('Not at all aware','Slightly aware','Moderately aware','Very aware','Extremely aware')
+  Q1_ordinal = grep("Q1\\.",colnames(tdf))
+  tdf[,Q1_ordinal] = lapply(tdf[,Q1_ordinal],make_ordinal, Awareness_levels,TRUE)
+  sapply(tdf[,Q1_ordinal], class) #quality check
+
+# Q3
+  Familiarity_levels= c('','Not at all familiar','Slightly familiar','Moderately familiar','Very familiar','Extremely familiar')
+  #colnames(tdf)[grep("Q3\\.",colnames(tdf))]
+  Q3_ordinal= grep("Q3\\.",colnames(tdf))
+  tdf[,Q3_ordinal] = lapply(tdf[,Q3_ordinal],make_ordinal, Familiarity_levels,TRUE)
+  sapply(tdf[,Q3_ordinal], class)  #quality check
+
+#Q7
+  Q7_levels= c('','Definitely not','Probably not','Not sure','Probably yes','Definitely yes')
+  Q_ordinal = grep("Q7\\.",colnames(tdf))
+  tdf[,Q_ordinal] = lapply(tdf[,Q_ordinal],make_ordinal, Q7_levels,TRUE)
+  sapply(tdf[,Q_ordinal], class) #quality check
+
+#Q8
+  Agreement_levels= c('','Strongly disagree','Disagree','Neutral','Agree','Strongly agree')
+  Q_ordinal = grep("Q8\\.",colnames(tdf))
+  tdf[,Q_ordinal] = lapply(tdf[,Q_ordinal],make_ordinal, Agreement_levels, TRUE)
+  sapply(tdf[,Q_ordinal], class) #quality check
+
+#Q13
+  Frequency_levels= c('','Less than 5','5-10 times','11-20 times','>20 times')
+  Q_ordinal = grep("Q13\\.",colnames(tdf))
+  tdf[,Q_ordinal] = lapply(tdf[,Q_ordinal],make_ordinal, Frequency_levels, TRUE)
+  sapply(tdf[,Q_ordinal], class) #quality check
+
+```
+
+
+## Saving Data:
+
+```{r}
+outfile_name <- "Preprocessed_data.Rds"
+save_file_path <- here(output_folder, outfile_name)
+saveRDS(object = tdf, file = save_file_path)
+
+saveRDS(object = rawdata, file = here(output_folder, "Raw_data.Rds"))
+
+```
